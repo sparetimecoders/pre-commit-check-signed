@@ -1,0 +1,8 @@
+- id: check-signed-commit
+  name: check-signed-commit
+  description: check if commits are signed before pushed
+  language: script
+  entry: check
+  stages: [pre-push, push, manual]
+  pass_filenames: false
+  always_run: true

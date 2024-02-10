@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+# shellcheck disable=2021
+zero=$(git hash-object --stdin </dev/null | tr '[0-9a-f]' '0')
+
+exit_code=0
+
+if test "${PRE_COMMIT_TO_REF}" = "${zero}"; then
+  :
+else
+  # Check for unsigned commit
+  # shellcheck disable=SC2162
+  while read ref; do
+    if ! git verify-commit "${ref}" 2>/dev/null; then
+      echo "unsigned commit ${ref}, $(git show -s --format=%s "${ref}")"
+      exit_code=1
+    fi
+  done < <(git rev-list "${PRE_COMMIT_FROM_REF}..${PRE_COMMIT_TO_REF}")
+fi
+
+exit ${exit_code}
